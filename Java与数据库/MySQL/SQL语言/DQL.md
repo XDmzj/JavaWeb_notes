@@ -27,12 +27,77 @@ SELECT * FROM 表名 WHERE 条件
 - 多重条件连接查询：and、or、not
 
 我们来尝试使用一下上面这几种条件。
+### like
 
-## 排序查询
+LIKE 操作符用于在 WHERE 子句中搜索列中的指定模式。
+
+`LIKE` 操作符是 SQL 中用于在 `WHERE` 子句中进行模糊查询的关键字，它允许我们根据模式匹配来选择数据，通常与 `%` 和 `_` 通配符一起使用。
+
+~~~sql
+SELECT column1, column2, ...
+FROM table_name
+WHERE column_name LIKE pattern;
+~~~
+参数说明：
+
+- **column1, column2, ...**：要选择的字段名称，可以为多个字段。如果不指定字段名称，则会选择所有字段。
+- **table_name**：要查询的表名称。
+- **column**：要搜索的字段名称。
+- **pattern**：搜索模式。
+
+**通配符**
+
+- `%`：匹配任意字符（包括零个字符）。
+- `_`：匹配单个字符。
+
+如：
+查看学校名称中含北京的用户
+~~~sql
+SELECT device_id, age, university
+FROM user_profile
+WHERE university LIKE '%北京%';
+~~~
+
+
+
+### round
+
+ROUND() 函数用于把数值字段舍入为指定的小数位数。
+
+SELECT ROUND(column_name,decimals) FROM TABLE_NAME;  
+
+|参数|描述|
+|:--|:--|
+|column_name|必需。要舍入的字段。|
+|decimals|可选。规定要返回的小数位数。|
+
+SQL ROUND() 实例
+
+**ROUND(X)：** 返回参数X的四舍五入的一个整数。
+mysql> SELECT ROUND(-1.23);  
+        -> -1  
+mysql> SELECT ROUND(1.58);  
+        -> 2  
+
+**ROUND(X,D)：** 返回参数X的四舍五入的有 D 位小数的一个数字。如果D为0，结果将没有小数点或小数部分。
+mysql> SELECT ROUND(1.298, 1);  
+        -> 1.3  
+mysql> SELECT ROUND(1.298, 0);  
+        -> 1
+
+
+
+
+
+
+
+
+
+
+
+## 排序查询 order by
 
 我们可以通过`order by`来将查询结果进行排序：
-
-sql复制代码
 
 ```sql
 SELECT * FROM 表名 WHERE 条件 ORDER BY 列名 ASC|DESC
@@ -42,11 +107,26 @@ SELECT * FROM 表名 WHERE 条件 ORDER BY 列名 ASC|DESC
 
 我们也可以可以同时添加多个排序：
 
-```sql
-SELECT * FROM 表名 WHERE 条件 ORDER BY 列名1 ASC|DESC, 列名2 ASC|DESC
+多列排序（重点！）
+
+如果两个人的分数一样（比如张三和王五都是 85），我想让名字字母靠前的人排在前面：
+
+```
+SELECT name, score 
+FROM students
+ORDER BY score DESC, name ASC;
 ```
 
-这样会先按照列名1进行排序，每组列名1相同的数据再按照列名2排序。
+- **逻辑拆解**：
+    
+    1. 先按 `score` 降序排。
+        
+    2. 当 `score` 相同时，再按 `name` 升序排。
+        
+- _结果：李四(92), **王五(85)**, **张三(85)**, 赵六(78)_ （假设“王”的排序权重在“张”之前）。
+
+
+
 
 ## 聚集函数
 
@@ -94,14 +174,63 @@ GROUP BY sex;
 SELECT sum(*) FROM 表名 WHERE 条件 GROUP BY 列名
 ```
 
+也可以根据两列的值来分组：
+当你写 `GROUP BY A, B` 时，数据库的判定逻辑是：
+
+1. 把 **A 列和 B 列的值拼在一起** 看。
+    
+2. 只有当 A 和 B **同时相同**时，它们才会被分到同一组。
+    
+3. 如果 A 相同但 B 不同，它们依然会分成两条记录显示。
+
+
+
 我们还可以添加`having`来限制分组条件：
 
 ```sql
 SELECT sum(*) FROM 表名 WHERE 条件 GROUP BY 列名 HAVING 约束条件
 ```
+#### having 和where对比
 
-- **WHERE（第一道关卡）**：在 **分组前** 过滤。它对着原始表的每一行进行检查。如果某行不符合条件，直接踢掉，不参与后面的统计。
-- **HAVING（第二道关卡）**：在 **分组后** 过滤。它对着聚合后的“组”进行检查。如果某个组的统计结果（如平均分、总数）不达标，把整个组踢掉。
+SQL 查询的底层执行顺序通常是：
+1. `FROM`（找表）
+2. **`WHERE`（过滤原始行数据）**
+3. `GROUP BY`（分组）
+4. **`HAVING`（过滤分组后的结果）**
+5. `SELECT`（选择列）
+6. `ORDER BY`（排序）
+
+---
+错误示例：
+```
+SELECT university, 
+       ROUND(AVG(question_cnt),3) AS avg_question_cnt, 
+       ROUND(AVG(answer_cnt),3) AS avg_answer_cnt
+FROM user_profile
+WHERE avg_question_cnt < 5 AND avg_answer_cnt < 20 -- 错误点在这里
+GROUP BY university;
+```
+
+- **报错原因**：`WHERE` 字句是在**分组计算之前**执行的。此时，数据库还在一行一行地读取 `user_profile` 表。
+- **逻辑矛盾**：`avg_question_cnt` 是通过 `AVG()` 函数计算出来的**聚合结果**。在 `WHERE` 执行的时候，数据库根本还没有开始计算平均值，它甚至还没开始分组。
+- **规则限制**：你不能在 `WHERE` 中直接使用聚合函数（如 `AVG`）或它们的别名。
+
+---
+正确用法：
+```
+SELECT university,
+       AVG(question_cnt) AS avg_question_cnt,
+       AVG(answer_cnt) AS avg_answer_cnt
+FROM user_profile
+GROUP BY university
+HAVING avg_question_cnt < 5 OR avg_answer_cnt < 20; -- 正确写法
+```
+
+- **正确原因**：`HAVING` 是在 `GROUP BY` **之后**执行的。
+- **执行逻辑**：此时数据库已经按照 `university` 分好了组，并且计算出了每个学校的平均值。`HAVING` 就像一个“二次筛选器”，专门用来对这些计算出来的平均值进行过滤。
+- **逻辑差异**：你这里使用了 **`OR`**，意味着只要“平均问题数 < 5”或者“平均回答数 < 20”其中一个条件成立，这个学校就会被查出来。
+
+
 
 ### limit
 

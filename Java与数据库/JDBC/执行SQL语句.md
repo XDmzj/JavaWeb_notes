@@ -127,3 +127,13 @@ try (Statement stmt = conn.createStatement()) {
 | **`executeQuery()`**  | `SELECT`                     | `ResultSet` | 包含查询结果的数据集合。                                       |
 | **`executeUpdate()`** | `INSERT`, `UPDATE`, `DELETE` | `int`       | 本次操作影响的记录行数。                                       |
 | **`execute()`**       | 任何 SQL (通常用于动态 SQL)          | `boolean`   | **true**: 返回了 ResultSet；**false**: 返回的是受影响行数或没有结果。 |
+
+
+
+# ResultSet自动关闭
+
+这是最容易踩坑的地方。JDBC 规定：**当在一个 `Statement` 上触发新的执行动作时，它之前产生的 `ResultSet` 会被自动关闭。**
+
+如果你试图在开启第二个查询后，继续读取第一个查询的结果集，程序会抛出异常。
+
+> **注意：** 如果你需要同时处理两个结果集，你必须创建两个独立的 `Statement` 对象。

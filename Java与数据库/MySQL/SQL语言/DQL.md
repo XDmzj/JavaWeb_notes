@@ -190,7 +190,7 @@ SELECT sum(*) FROM 表名 WHERE 条件 GROUP BY 列名
 ```sql
 SELECT sum(*) FROM 表名 WHERE 条件 GROUP BY 列名 HAVING 约束条件
 ```
-#### having 和where对比
+#### having 和 where对比
 
 SQL 查询的底层执行顺序通常是：
 1. `FROM`（找表）

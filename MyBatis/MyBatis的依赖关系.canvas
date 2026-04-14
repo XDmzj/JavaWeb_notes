@@ -1,14 +1,16 @@
 {
 	"nodes":[
-		{"id":"4a11cf14d4c7cb60","x":-125,"y":160,"width":250,"height":60,"type":"text","text":"SqlSession"},
-		{"id":"86adfde2d94023c8","x":-125,"y":-100,"width":250,"height":60,"type":"text","text":"SqlSessionFactory"},
-		{"id":"1e9850e37469fc7b","x":-500,"y":20,"width":250,"height":60,"type":"text","text":"Mappers.xml配置sql语句与返回结果"},
-		{"id":"f50fa7a06123e5b9","x":-160,"y":-340,"width":250,"height":60,"type":"text","text":"MyBatisConfig.xml配置Factory"}
+		{"id":"4a11cf14d4c7cb60","type":"text","text":"SqlSession","x":-125,"y":160,"width":250,"height":60},
+		{"id":"86adfde2d94023c8","type":"text","text":"SqlSessionFactory","x":-125,"y":-100,"width":250,"height":60},
+		{"id":"f50fa7a06123e5b9","type":"text","text":"MyBatisConfig.xml配置Factory","x":-160,"y":-340,"width":250,"height":60},
+		{"id":"1e9850e37469fc7b","type":"text","text":"Mappers.xml配置sql语句与返回结果","x":-560,"y":-95,"width":250,"height":55},
+		{"id":"03f91c6ebf6b49cb","x":-125,"y":300,"width":250,"height":60,"type":"text","text":"执行sql，得到返回结果"}
 	],
 	"edges":[
-		{"id":"301045a44b47346b","fromNode":"86adfde2d94023c8","fromSide":"bottom","toNode":"4a11cf14d4c7cb60","toSide":"top","label":"Factory创建Session，\nFactory只需要创建一个"},
+		{"id":"301045a44b47346b","fromNode":"86adfde2d94023c8","fromSide":"bottom","toNode":"4a11cf14d4c7cb60","toSide":"top","label":"使用Factory创建Session，\nFactory只需要有一个"},
 		{"id":"269ee52f04aace5d","fromNode":"f50fa7a06123e5b9","fromSide":"bottom","toNode":"86adfde2d94023c8","toSide":"top","label":"Factory依赖mybatis来建立"},
 		{"id":"46669e8eccf5a376","fromNode":"f50fa7a06123e5b9","fromSide":"left","toNode":"1e9850e37469fc7b","toSide":"top","label":"mybatis配置中要有Mappers的信息"},
-		{"id":"551336239bdfd1c8","fromNode":"1e9850e37469fc7b","fromSide":"bottom","toNode":"4a11cf14d4c7cb60","toSide":"left","label":"Session中只有sql语句的多个模板（参数返回结果等），但是具体的sql语句需要Mappers来提供"}
+		{"id":"551336239bdfd1c8","fromNode":"1e9850e37469fc7b","fromSide":"bottom","toNode":"4a11cf14d4c7cb60","toSide":"left","label":"Session中只有sql语句的多个模板（参数返回结果等），但是具体的sql语句需要Mappers来提供"},
+		{"id":"8e655e6f64b3c2b6","fromNode":"4a11cf14d4c7cb60","fromSide":"bottom","toNode":"03f91c6ebf6b49cb","toSide":"top"}
 	]
 }

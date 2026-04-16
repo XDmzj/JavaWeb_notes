@@ -104,3 +104,9 @@ public static final Level ALL = new Level("ALL", Integer.MIN_VALUE, defaultBundl
 ```
 
 因为这这里OFF的值为int的最大值，也就是说没有任何日志级别的值大于它，因此，如果将打印等级配置为OFF，那么所有类型的日志信息都不会被打印了，而ALL则相反。
+
+
+
+# 总结
+
+logger接收各种各样的日志信息，这些日志信息有不同的级别，logger根据其级别和自己的level判断处不处理，需要处理的递给handler，handler根据自己的level和日志的level判断打不打印
